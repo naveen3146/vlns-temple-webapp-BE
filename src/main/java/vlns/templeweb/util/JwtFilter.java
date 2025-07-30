@@ -14,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import vlns.templeweb.config.SecurityConfig;
 
 import java.io.IOException;
 
@@ -31,7 +30,12 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getServletPath();
-        if (path.startsWith("/auth/login") || path.startsWith("/auth/register") || path.startsWith("/h2-console") || path.startsWith("/auth/encode")) {
+        // List all public endpoints here
+        if (path.startsWith("/auth/login") ||
+                path.startsWith("/auth/register") ||
+                path.startsWith("/h2-console") ||
+                path.startsWith("/auth/encode") ||
+                path.startsWith("/temple/photos")) {
             chain.doFilter(request, response);
             return;
         }

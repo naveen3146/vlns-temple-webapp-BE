@@ -1,11 +1,5 @@
 package vlns.templeweb.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +22,9 @@ public class GalleryPhotoController {
     @Autowired
     PhotoServiceImpl photoService;
 
+    //Upload Images
     @PostMapping("/photos")
-    @Operation(summary = "Upload multiple photos", description = "Uploads one or more photos")
-    @ApiResponse(responseCode = "201", description = "Photos uploaded successfully",
-            content = @Content(array = @ArraySchema(schema = @Schema(implementation = FileMetaData.class))))
-    public ResponseEntity<List<FileMetaData>> uploadImages(@Parameter(
-            description = "Files to upload",
-            required = true,
-            content = @Content(mediaType = "multipart/form-data")
-    )
-                                                           @RequestParam("files") MultipartFile[] files) throws IOException {
+    public ResponseEntity<List<FileMetaData>> uploadImages(@RequestParam("files") MultipartFile[] files) throws IOException {
         logger.info("files for upload: {}", (Object) files);
 
         List<MultipartFile> fileList = java.util.Arrays.asList(files);
@@ -48,6 +35,7 @@ public class GalleryPhotoController {
 
     }
 
+    //DownLoad Images
     @GetMapping("/photos")
     public ResponseEntity<List<FileMetaData>> fetchImages() {
         List<FileMetaData> images = photoService.listFiles();
@@ -64,7 +52,7 @@ public class GalleryPhotoController {
         return ResponseEntity.ok()
                 .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
                 .body(fileResource);
-         }
+    }
 
     // Delete image
     @DeleteMapping("/photos/{filename}")
@@ -72,8 +60,7 @@ public class GalleryPhotoController {
         photoService.deleteFile(filename);
         return ResponseEntity.noContent().build();
 
-        }
-
+    }
 
 }
 

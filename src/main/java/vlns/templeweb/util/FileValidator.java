@@ -26,29 +26,45 @@ public class FileValidator {
             "image/tiff"
     );
 
-    private static final Set<String> ALLOWED_CONTENT_TYPES_ViDEOS = Set.of(
-            // Videos
-            "video/mp4",
-            "video/quicktime",
-            "video/x-msvideo",
-            "video/x-matroska",
-            "video/webm",
-            "video/mpeg");
+    private static final Set<String> ALLOWED_CONTENT_TYPES_VideoModelS = Set.of(
+            // VideoModels
+            "VideoModel/mp4",
+            "VideoModel/quicktime",
+            "VideoModel/x-msVideoModel",
+            "VideoModel/x-matroska",
+            "VideoModel/webm",
+            "VideoModel/mpeg");
 
-   /* public static List<FileMetaData> filterValidFiles(List<MultipartFile> files) {
-*//*        Set<String> fileNames = new HashSet<>();
+
+    public List<FileMetaData> filterValidFiles(List<MultipartFile> files) {
+        Set<String> fileNames = new HashSet<>();
         return files.stream()
                 .filter(Objects::nonNull)
-                .filter(file -> file.getSize() > 0)
-                .filter(file -> file.getSize() <= MAX_FILE_SIZE)
-                .filter(file -> ALLOWED_CONTENT_TYPES_IMAGES.contains(file.getContentType()))
-                .filter(file -> fileNames.add(file.getOriginalFilename()))
+                .filter(file -> {
+                    if (file.getSize() <= 0) {
+                        logger.warn("File '{}' is empty.", file.getOriginalFilename());
+                        return false;
+                    }
+                    if (file.getSize() > MAX_FILE_SIZE) {
+                        logger.warn("File '{}' exceeds max size.", file.getOriginalFilename());
+                        return false;
+                    }
+                    if (!ALLOWED_CONTENT_TYPES_IMAGES.contains(file.getContentType())) {
+                        logger.warn("File '{}' has invalid content type '{}'.", file.getOriginalFilename(), file.getContentType());
+                        return false;
+                    }
+                    if (!fileNames.add(file.getOriginalFilename())) {
+                        logger.warn("Duplicate file name '{}'.", file.getOriginalFilename());
+                        return false;
+                    }
+                    return true;
+                })
                 .map(file -> new FileMetaData(
                         file.getOriginalFilename(),
                         file.getSize(),
                         file.getContentType()
                 ))
                 .collect(Collectors.toList());
-    }*/
+    }
 
 }

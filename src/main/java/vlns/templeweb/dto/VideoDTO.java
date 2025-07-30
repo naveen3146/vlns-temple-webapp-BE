@@ -7,8 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Video {
+public class VideoDTO {
     private Long id;
     private String title;
-    private String url;
+    private String description;
+    private String s3Url;
+    private String fileName;
+
 }

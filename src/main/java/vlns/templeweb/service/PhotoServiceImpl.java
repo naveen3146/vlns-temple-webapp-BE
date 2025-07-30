@@ -2,7 +2,6 @@ package vlns.templeweb.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,15 +15,14 @@ import vlns.templeweb.model.FileMetaData;
 import vlns.templeweb.util.FileValidator;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class PhotoServiceImpl implements StorageService {
-    private static final Logger logger = LogManager.getLogger(PhotoServiceImpl.class);
 
+    private static final Logger logger = LogManager.getLogger(PhotoServiceImpl.class);
 
     private final AmazonS3 s3Client;
     private final String bucketName;
@@ -38,40 +36,36 @@ public class PhotoServiceImpl implements StorageService {
 
     @Override
     public List<FileMetaData> uploadFile(List<MultipartFile> files) {
-        if (files.size() > 10) {
-            throw new StorageException("Cannot upload more than 10 files at once", null);
-        }
-        //FileValidator.filterValidFiles(files);
+        List<FileMetaData> validFiles = fileValidator.filterValidFiles(files);
         logger.info("Uploading {} files", files.size());
-        List<FileMetaData> metaDataList = new ArrayList<>();
-        for (MultipartFile file : files) {
+        return files.stream().map(file -> {
             try (InputStream inputStream = file.getInputStream()) {
-                s3Client.putObject(bucketName, file.getOriginalFilename(), inputStream, null);
-                String fileUrl = s3Client.getUrl(bucketName, file.getOriginalFilename()).toString();
-                metaDataList.add(new FileMetaData(file.getOriginalFilename(), file.getSize(), bucketName,fileUrl));
+                s3Client.putObject(bucketName, getImageKey(file.getOriginalFilename()), inputStream, null);
+                String fileUrl = s3Client.getUrl(bucketName, getImageKey(file.getOriginalFilename())).toString();
+                return new FileMetaData(file.getOriginalFilename(), file.getSize(), bucketName, fileUrl);
             } catch (Exception e) {
                 logger.error("Error uploading file {} to S3: ", file.getOriginalFilename(), e);
                 throw new StorageException("Failed to upload file: " + file.getOriginalFilename(), e instanceof AmazonS3Exception ? (AmazonS3Exception) e : null);
             }
-        }
-        return metaDataList;
+        }).collect(Collectors.toList());
     }
 
     @Override
     public Resource downloadFile(String fileName) {
         try {
-            InputStream inputStream = s3Client.getObject(bucketName, fileName).getObjectContent();
+            InputStream inputStream = s3Client.getObject(bucketName, getImageKey(fileName)).getObjectContent();
             return new InputStreamResource(inputStream);
         } catch (Exception e) {
             logger.error("Error downloading file from S3: ", e);
-            throw new StorageException("Failed to download file", (AmazonS3Exception) e);
+            AmazonS3Exception s3Exception = e instanceof AmazonS3Exception ? (AmazonS3Exception) e : null;
+            throw new StorageException("Failed to download file", s3Exception);
         }
     }
 
     @Override
     public void deleteFile(String fileName) {
         try {
-            s3Client.deleteObject(bucketName, fileName);
+            s3Client.deleteObject(bucketName, getImageKey(fileName));
         } catch (Exception e) {
             logger.error("Error deleting file from S3: ", e);
             throw new StorageException("Failed to delete file", (AmazonS3Exception) e);
@@ -87,9 +81,11 @@ public class PhotoServiceImpl implements StorageService {
                 return Collections.emptyList();
             }
             return summaries.stream()
+                    .filter(obj -> obj.getKey().startsWith("temple-images/"))
+                    .filter(obj -> !obj.getKey().equals("temple-images/"))
                     .map(obj -> {
                         String url = s3Client.getUrl(bucketName, obj.getKey()).toString();
-                        return new FileMetaData(obj.getKey(), obj.getSize(), bucketName, url);
+                        return new FileMetaData(obj.getKey().substring("temple-images/".length()), obj.getSize(), bucketName, url);
                     })
                     .collect(Collectors.toList());
         } catch (Exception e) {
@@ -97,26 +93,13 @@ public class PhotoServiceImpl implements StorageService {
             throw new StorageException("Failed to list files", e instanceof AmazonS3Exception ? (AmazonS3Exception) e : null);
         }
     }
+
     @Override
     public FileMetaData getFileMetadata(String fileName) throws StorageException {
-        try {
-            ObjectMetadata metadata = s3Client.getObjectMetadata(bucketName, fileName);
-            return new FileMetaData(
-                    fileName,
-                    metadata.getContentLength(),
-                    bucketName,""
-            );
-        } catch (AmazonS3Exception e) {
-            if (e.getStatusCode() == 404) {
-                logger.warn("File not found: {}", fileName);
-                return null;  // Return null for non-existent files
-            }
-            logger.error("Error getting metadata for file: {}", fileName, e);
-            throw new StorageException("Failed to get file metadata from S3", e);
-        } catch (Exception e) {
-            logger.error("Unexpected error getting metadata for file: {}", fileName, e);
-            throw new StorageException("Unexpected error getting file metadata", (AmazonS3Exception) e);
-        }
+        return null;
     }
 
+    private String getImageKey(String filename){
+        return "temple-images/" + filename;
+    }
 }

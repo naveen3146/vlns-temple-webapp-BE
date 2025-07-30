@@ -12,6 +12,7 @@ public class VLNSTempleWebApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(VLNSTempleWebApplication.class, args);
 
+
 	}
 }
 

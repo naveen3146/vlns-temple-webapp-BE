@@ -15,6 +15,20 @@ public class FileMetaData {
     private String url;
 
     public FileMetaData(String fileName, long size, String bucketName, String url) {
-        this(fileName, size, bucketName, null, url);
+        this.fileName = fileName;
+        this.size = size;
+        this.bucketName = bucketName;
+        this.url = url;
+    }
+
+    public FileMetaData(String fileName, long size, String contentType) {
+        this.fileName = fileName;
+        this.size = size;
+        this.contentType = contentType;
+    }
+
+    public FileMetaData(String fileName, long size) {
+        this.fileName = fileName;
+        this.size = size;
     }
 }
