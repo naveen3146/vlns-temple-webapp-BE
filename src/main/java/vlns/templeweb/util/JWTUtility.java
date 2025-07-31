@@ -5,7 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -20,12 +20,18 @@ import java.util.stream.Collectors;
 @Component
 public class JWTUtility {
 
+    @Autowired
+    private AwsSecretsManagerUtil secretsManagerUtil;
 
-    @Value("${jwt.secret}")
-    private String secret;
+    private String getJWTSecret() {
+        Map<String, String> secrets = secretsManagerUtil.getSecret();
+        return secrets.get("JWT_SECRET");
+    }
+
+
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        byte[] keyBytes = Decoders.BASE64.decode(getJWTSecret());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

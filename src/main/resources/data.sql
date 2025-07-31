@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS user_roles (
 );
 
 -- Insert default admin user
-INSERT INTO users (username, password) VALUES ('admin', '$2a$10$nws/7sRMAQJ/iAFlMglBmO6AL4.FFAZRPfYOLMZmkFVlraWdAHlgi');
+INSERT INTO users (username, password) VALUES ('admin', '$2a$10$2JUu9qOrnNHhp2obJne6FuRvst73fsELd9wBxK3JxdJn0v4q1clVy');
 
 -- Assign ROLE_ADMIN to admin user using dynamic user ID
 INSERT INTO user_roles (user_id, roles)
