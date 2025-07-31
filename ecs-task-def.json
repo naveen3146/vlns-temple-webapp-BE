@@ -14,5 +14,15 @@
         }
       ]
     }
+  ],
+  "environment": [
+    {
+      "name": "AWS_ACCESS_KEY_ID",
+      "value": "<your-access-key-id>"
+    },
+    {
+      "name": "AWS_SECRET_ACCESS_KEY",
+      "value": "<your-secret-access-key>"
+    }
   ]
 }
