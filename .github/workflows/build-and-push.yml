@@ -6,7 +6,7 @@ on:
 
 env:
   AWS_REGION: ap-south-1
-  ECR_REPOSITORY: vlns-backend-app
+  ECR_REPOSITORY: vlnstempleweb
 
 jobs:
   build:
