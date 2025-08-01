@@ -5,7 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import vlns.templeweb.util.AwsSecretsManagerUtil;
+import vlns.templeweb.util.AWSSecretsManagerUtil;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class DataSourceConfig {
 
     @Autowired
-    private AwsSecretsManagerUtil secretsManagerUtil;
+    private AWSSecretsManagerUtil secretsManagerUtil;
 
     @Bean
     public DataSource dataSource() {

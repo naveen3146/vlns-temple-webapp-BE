@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class JWTUtility {
 
     @Autowired
-    private AwsSecretsManagerUtil secretsManagerUtil;
+    private AWSSecretsManagerUtil secretsManagerUtil;
 
     private String getJWTSecret() {
         Map<String, String> secrets = secretsManagerUtil.getSecret();

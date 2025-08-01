@@ -8,14 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import vlns.templeweb.util.AwsSecretsManagerUtil;
+import vlns.templeweb.util.AWSSecretsManagerUtil;
 
 import java.util.Map;
 
 @Configuration
 public class AWSConfig {
     @Autowired
-    private AwsSecretsManagerUtil secretsManagerUtil;
+    private AWSSecretsManagerUtil secretsManagerUtil;
 
     @Value("${aws.s3.region}")
     private String region;
