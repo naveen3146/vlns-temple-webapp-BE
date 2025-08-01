@@ -40,15 +40,6 @@ jobs:
           container-name: "vlnstempleweb-container"
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
-      - name: Debug rendered task definition
-        run: |
-          echo "Rendered Task Definition:"
-          echo "/home/runner/work/_temp/task-definition--2193-jnW9538c5Gid-.json"
-          echo "Raw input to jq:"
-          cat /home/runner/work/_temp/task-definition--2193-jnW9538c5Gid-.json
-          echo "jq output:"
-          cat /home/runner/work/_temp/task-definition--2193-jnW9538c5Gid-.json | jq .
-
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
