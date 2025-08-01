@@ -41,7 +41,7 @@ jobs:
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
       - name: Update ECS service
-        uses: aws-actions/amazon-ecs-update-service@v1
+        uses: aws-actions/amazon-ecs-update-service@v2
         with:
           cluster: ${{ env.CLUSTER_NAME }}
           service: ${{ env.SERVICE_NAME }}
