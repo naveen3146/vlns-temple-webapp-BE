@@ -43,6 +43,10 @@ jobs:
       - name: Debug rendered task definition
         run: |
           echo "Rendered Task Definition:"
+          echo "${{ steps.render-task-def.outputs.task-definition }}"
+          echo "Raw input to jq:"
+          echo "${{ steps.render-task-def.outputs.task-definition }}" | cat
+          echo "jq output:"
           echo "${{ steps.render-task-def.outputs.task-definition }}" | jq .
 
       - name: Deploy Amazon ECS task definition
