@@ -43,8 +43,8 @@ jobs:
       - name: Debug rendered task definition
         run: |
           echo "Rendered Task Definition:"
-          echo "${{ steps.render-task-def.outputs.task-definition }}" | jq .
-
+          cat "${{ steps.render-task-def.outputs.task-definition }}" | jq .
+    
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
