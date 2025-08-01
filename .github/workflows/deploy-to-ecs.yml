@@ -32,6 +32,11 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Print base ECS task definition
+        run: |
+            echo "Base ECS Task Definition:"
+            cat ${{ env.TASK_DEF_PATH }} | jq .
+
       - name: Render new ECS task definition
         id: render-task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
