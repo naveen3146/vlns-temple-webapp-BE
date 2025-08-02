@@ -31,7 +31,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
         // List all public endpoints here
-        if (path.startsWith("/auth/login") ||
+        if (path.startsWith("/health") ||
+                path.startsWith("/auth/login") ||
                 path.startsWith("/auth/register") ||
                 path.startsWith("/h2-console") ||
                 path.startsWith("/auth/encode") ||
