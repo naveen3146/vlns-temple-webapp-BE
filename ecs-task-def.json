@@ -13,20 +13,22 @@
               "hostPort": 8085
             }
           ],
-      "environment": [
-        {
-          "name": "aws.secretName",
-          "value": "prod/app/credentials"
+          "environment": [
+            {
+              "name": "aws.secretName",
+              "value": "prod/app/credentials"
+            }
+          ],
+          "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+              "awslogs-group": "/ecs/vlnstempleweb",
+              "awslogs-region": "ap-south-1",
+              "awslogs-stream-prefix": "ecs"
+            }
+          }
         }
       ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/vlnstempleweb",
-          "awslogs-region": "ap-south-1",
-          "awslogs-stream-prefix": "ecs"
-        }
-      }
       "requiresCompatibilities": ["FARGATE"],
       "networkMode": "awsvpc",
       "cpu": "256",
