@@ -16,7 +16,7 @@ public class AWSSecretsManagerUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(AWSSecretsManagerUtil.class);
 
-    @Value("${aws.secretName}")
+    //@Value("${aws.secretName}")
     private String secretName = "prod/app/credentials";
 
     private Map<String, String> secretMap;
