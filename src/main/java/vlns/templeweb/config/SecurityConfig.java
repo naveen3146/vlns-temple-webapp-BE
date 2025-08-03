@@ -36,7 +36,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://my-react-temple-app.s3-website.ap-south-1.amazonaws.com"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://my-react-temple-app.s3-website.ap-south-1.amazonaws.com", "https://my-react-temple-app.s3-website.ap-south-1.amazonaws.com"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
