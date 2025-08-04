@@ -44,11 +44,6 @@ jobs:
           task-definition: ${{ env.TASK_DEF_PATH }}
           container-name: "vlnstempleweb-container"
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
-
-      - name: Debug rendered task definition
-        run: |
-          echo "Rendered Task Definition:"
-          cat "${{ steps.render-task-def.outputs.task-definition }}" | jq .
     
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -57,3 +52,5 @@ jobs:
           service: ${{ env.SERVICE_NAME }}
           cluster: ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
+          wait-for-minutes: 10  # Reduce from default 15 minutes
+          force-new-deployment: true  # Force deployment even if task def hasn't
