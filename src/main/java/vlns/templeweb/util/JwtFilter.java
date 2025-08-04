@@ -30,6 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getServletPath();
+        logger.info("Servlet path: {}", path);
         // List all public endpoints here
         if (path.startsWith("/health") ||
                 path.startsWith("/auth/login") ||
@@ -37,6 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 path.startsWith("/h2-console") ||
                 path.startsWith("/auth/encode") ||
                 path.startsWith("/temple/photos")) {
+            logger.info("Bypassing JWT for path: {}", path);
             chain.doFilter(request, response);
             return;
         }
@@ -59,7 +61,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         }
-
+        logger.info("Bypassing JWT for path: {}", path);
         chain.doFilter(request, response);
     }
 }
