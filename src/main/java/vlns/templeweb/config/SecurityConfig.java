@@ -36,12 +36,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of(
-                "https://my-backend-alb-1613799762.ap-south-1.elb.amazonaws.com",
+        configuration.setAllowedOrigins(List.of(
                 "https://sribhuvarahalakshminarasimha.in",
                 "https://www.sribhuvarahalakshminarasimha.in",
-                "http://localhost:3000",
-                "https://my-react-temple-app.s3-website.ap-south-1.amazonaws.com"
+                "http://localhost:3000"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "*"));
