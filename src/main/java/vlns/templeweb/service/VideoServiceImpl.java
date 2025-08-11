@@ -1,12 +1,15 @@
 package vlns.templeweb.service;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.github.kokorin.jaffree.ffmpeg.FFmpeg;
 import com.github.kokorin.jaffree.ffmpeg.UrlInput;
 import com.github.kokorin.jaffree.ffmpeg.UrlOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,20 +19,19 @@ import vlns.templeweb.repository.VideoRepo;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class VideoServiceImpl {
 
     private static final Logger logger = LoggerFactory.getLogger(VideoServiceImpl.class);
-    private final AmazonS3Client s3Client;
+    private AmazonS3Client s3Client;
     private final VideoRepo VideoRepository;
     @Value("${aws.s3.bucket}")
     private String bucket;
+    private static final long URL_EXPIRATION_TIME = 1000 * 60 * 15; // 15 minutes
 
     public VideoServiceImpl(AmazonS3Client s3Client, VideoRepo videoRepository) {
         this.s3Client = s3Client;
@@ -37,7 +39,7 @@ public class VideoServiceImpl {
     }
 
     public VideoDTO uploadVideoModel(MultipartFile file, String title, String description) throws IOException {
-        logger.info("request received for uplaod video file {}{}{}", file,title,description);
+        logger.info("request received for uplaod video file {}{}{}", file, title, description);
         if (!Objects.requireNonNull(file.getContentType()).startsWith("video/")) {
             throw new IllegalArgumentException("Invalid file type");
         }
@@ -68,7 +70,9 @@ public class VideoServiceImpl {
             // Upload the file directly
             s3Client.putObject(bucket, uniqueFileName, tempOutput);
 
-            String s3Url = "https://" + bucket + ".s3.amazonaws.com/" + uniqueFileName;
+            // Generate a pre-signed URL for uploading (PUT)
+            URL presignedPutUrl = generatePresignedUrl(bucket, uniqueFileName);
+            String s3Url = presignedPutUrl.toString();
 
             VideoModel videoModel = new VideoModel();
             videoModel.setTitle(title);
@@ -99,13 +103,16 @@ public class VideoServiceImpl {
     public Resource getVideoResource(String fileName, String rangeHeader) {
         // Download the file from S3 as a Resource
         logger.info("request received for download video file {}{}", fileName, rangeHeader);
+        File tempFile = null;
         try {
-            File tempFile = Files.createTempFile("video-", fileName).toFile();
+            tempFile = Files.createTempFile("video-", fileName).toFile();
             s3Client.getObject(bucket, fileName).getObjectContent().transferTo(Files.newOutputStream(tempFile.toPath()));
-            org.springframework.core.io.Resource resource = new org.springframework.core.io.FileSystemResource(tempFile);
-            return resource;
+            return new FileSystemResource(tempFile);
         } catch (IOException e) {
             logger.error("Error retrieving video resource", e);
+            if (tempFile != null && tempFile.exists()) {
+                tempFile.delete();
+            }
             return null;
         }
     }
@@ -135,10 +142,20 @@ public class VideoServiceImpl {
             dto.setId(video.getId());
             dto.setTitle(video.getTitle());
             dto.setDescription(video.getDescription());
-            dto.setS3Url(video.getS3Url());
             dto.setFileName(video.getFileName());
+            // Generate pre-signed URL dynamically
+            URL presignedUrl = generatePresignedUrl(bucket, video.getFileName());
+            dto.setS3Url(presignedUrl.toString());
             dtos.add(dto);
         }
         return dtos;
+    }
+
+    private URL generatePresignedUrl(String bucketName, String objectKey) {
+        Date expiration = new Date(System.currentTimeMillis() + URL_EXPIRATION_TIME);
+        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucketName, objectKey)
+                .withMethod(HttpMethod.PUT)
+                .withExpiration(expiration);
+        return s3Client.generatePresignedUrl(request);
     }
 }
